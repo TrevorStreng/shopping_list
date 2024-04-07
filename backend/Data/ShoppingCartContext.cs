@@ -1,11 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
-using shoppingList.Api.Models;
+﻿using backend.Models;
+using Microsoft.EntityFrameworkCore;
 
 
-namespace shoppingList.Api.Data;
+namespace backend.Data;
 
 public class ShoppingCartContext(DbContextOptions<ShoppingCartContext> options)
  : DbContext(options)
 {
   public DbSet<Item> Items { get; set; }
+
+  public DbSet<Category> Categories { get; set; }
 }

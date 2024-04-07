@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Http.Metadata;
+﻿using backend.Data;
+using backend.Models;
+using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using shoppingList.Api.Data;
-using shoppingList.Api.Models;
 
-namespace shoppingList.Api.Controllers 
+namespace backend.Controllers 
 {
   [ApiController]
   [Route("[controller]")]
@@ -12,8 +12,7 @@ namespace shoppingList.Api.Controllers
   {
     private readonly ShoppingCartContext _context;
 
-    public ItemsController(ShoppingCartContext context)
-    {
+    public ItemsController(ShoppingCartContext context) {
       _context = context;
     }
 

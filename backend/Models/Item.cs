@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace shoppingList.Api.Models;
+﻿namespace backend.Models;
 
 public class Item
 {

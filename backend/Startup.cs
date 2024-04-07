@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
-using shoppingList.Api.Data;
+using backend.Data;
 
 namespace shoppingList.Api
 {
@@ -24,7 +24,7 @@ namespace shoppingList.Api
             services.AddDbContext<ShoppingCartContext>(options =>
                 options.UseMySQL(Configuration.GetConnectionString("ShoppingCart")!));
 
-            // Add CORS policy
+            // ? Add CORS policy
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowSpecificOrigin",
@@ -54,7 +54,7 @@ namespace shoppingList.Api
 
             app.UseCors("AllowSpecificOrigin");
 
-            app.UseHttpsRedirection();
+            // !!!!! app.UseHttpsRedirection();
             app.UseRouting();
             app.UseAuthorization();
 
