@@ -37,7 +37,7 @@ namespace backend.Controllers
       try {
         await _context.SaveChangesAsync();
       } catch (Exception ex) {
-        System.Console.WriteLine($"{ex}");
+        System.Console.WriteLine(ex);
         return StatusCode(500, "An error occured while creating item. 🤬");
       }
 
