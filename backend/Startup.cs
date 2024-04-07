@@ -23,6 +23,8 @@ namespace shoppingList.Api
             // Configure DbContext and specify the MySQL connection string
             services.AddDbContext<ShoppingCartContext>(options =>
                 options.UseMySQL(Configuration.GetConnectionString("ShoppingCart")!));
+            services.AddDbContext<UserContext>(options =>
+                options.UseMySQL(Configuration.GetConnectionString("ShoppingCart")!));
 
             // ? Add CORS policy
             services.AddCors(options =>

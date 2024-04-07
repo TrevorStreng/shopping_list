@@ -1,14 +1,19 @@
-﻿namespace backend.Models;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace backend.Models;
 
 public class Item
 {
     public int Id { get; set; }
 
-    public required string Name { get; set; }
+    [Required]
+    public string? Name { get; set; }
 
+    [Required]
     public int Amount { get; set; }
 
-    public int? CategoryId { get; set; }
+    [Required]
+    public int CategoryId { get; set; }
 
     // public Category? Category { get; set; }
 }
