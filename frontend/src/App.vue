@@ -1,21 +1,14 @@
 <script setup>
-import HelloWorld from "./components/HelloWorld.vue";
-import TheWelcome from "./components/TheWelcome.vue";
+import Navbar from "./components/Navbar.vue";
+import ShoppingList from "./components/ShoppingList.vue";
 </script>
 
 <template>
-  <!-- <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
+  <header>
+    <Navbar />
   </header>
 
-  <main>
-    <TheWelcome />
-  </main> -->
-  <div class="bg-black">Hello World</div>
+  <main class="h-full">
+    <ShoppingList />
+  </main>
 </template>
-
-<style scoped></style>
