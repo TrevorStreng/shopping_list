@@ -19,6 +19,18 @@ const items = ref([
     category: "meat",
   },
 ]);
+
+onMounted(() => {
+  const getItems = async () => {
+    try {
+      const items = await axios.get("http://localhost:5066/items");
+      console.log(items);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  getItems();
+});
 </script>
 
 <template>
