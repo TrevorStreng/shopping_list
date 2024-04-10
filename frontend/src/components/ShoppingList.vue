@@ -2,29 +2,14 @@
 import { ref, onMounted } from "vue";
 import axios from "axios";
 
-const items = ref([
-  {
-    name: "brocolli",
-    amount: 1,
-    category: "produce",
-  },
-  {
-    name: "snickers",
-    amount: 2,
-    category: "candy",
-  },
-  {
-    name: "chicken",
-    amount: 5,
-    category: "meat",
-  },
-]);
+let items = ref([]);
 
 onMounted(() => {
   const getItems = async () => {
     try {
-      const items = await axios.get("http://localhost:5066/items");
-      console.log(items);
+      const list = await axios.get("http://localhost:5066/items");
+      console.log(list);
+      items.value = list.data;
     } catch (err) {
       console.error(err);
     }
