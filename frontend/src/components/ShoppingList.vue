@@ -16,12 +16,41 @@ onMounted(() => {
   };
   getItems();
 });
+
+// Add item section
+let itemName = ref("");
+let itemAmount = ref(1);
+let itemCategory = ref("");
+
+const addItem = async () => {
+  // ? idk if I should store this in local storage for now or straight to the database
+  try {
+    const body = {
+      name: itemName.value,
+      amount: itemAmount.value,
+      categoryId: 1,
+    };
+    const newItem = await axios.post("http://localhost:5066/items", body);
+    items.value.push(newItem.data);
+  } catch (err) {
+    console.error(err);
+  }
+};
+const deleteItem = async (id) => {
+  console.log(id);
+  try {
+    await axios.delete(`http://localhost:5066/items/${id}`);
+  } catch (err) {
+    console.error(err);
+  }
+};
 </script>
 
 <template>
   <div id="wrapper" class="flex justify-center">
+    <!-- add button -->
     <div
-      class="flex items-center justify-center absolute right-0 rounded-full border w-8 h-8"
+      class="flex items-center justify-center absolute right-4 w-8 h-8 bottom-8 w-16"
       @click="isModalVisible = !isModalVisible"
     >
       <svg
@@ -55,31 +84,168 @@ onMounted(() => {
         </g>
       </svg>
     </div>
+    <!-- add item modal -->
     <div
       id="item_modal"
-      class="border w-2/3 h-2/3 absolute z-0"
+      class="border w-2/3 h-2/3 absolute z-0 bg-white rounded-xl mt-8"
       v-if="isModalVisible"
-    ></div>
-    <div class="flex-col z-1">
+    >
+      <div class="h-full flex flex-col items-center justify-evenly">
+        <div>
+          <p>Item:</p>
+          <input
+            type="text"
+            name="item_name"
+            size="15"
+            class="border"
+            placeholder="brocolli"
+            v-model="itemName"
+          />
+        </div>
+        <div class="flex w-2/3 justify-evenly">
+          <button @click="if (itemAmount > 1) itemAmount--;">-</button>
+          <input
+            type="text"
+            name="item_amount"
+            size="2"
+            class="border"
+            v-model="itemAmount"
+          />
+          <button @click="itemAmount++">+</button>
+        </div>
+        <div>
+          <p>Category:</p>
+          <input
+            type="text"
+            name="item_category"
+            size="15"
+            class="border"
+            placeholder="produce"
+            v-model="itemCategory"
+          />
+        </div>
+        <button
+          class="border rounded w-24 py-1"
+          @click="
+            () => {
+              addItem();
+              isModalVisible = !isModalVisible;
+            }
+          "
+        >
+          Add
+        </button>
+      </div>
+    </div>
+    <!-- main content -->
+    <div class="flex-col z-1 w-2/3">
       <div
-        class="flex justify-evenly h-20"
+        class="flex items-center justify-evenly h-20"
         v-for="(item, index) in items"
         :key="index"
+        @click="toggleItemSelection(item)"
       >
-        <div class="">
-          <div class="">{{ item.name }}</div>
-          <div class="flex justify-evenly">
-            <button class="">-</button>
-            <div class="">{{ item.amount }}</div>
-            <button class="">+</button>
-          </div>
+        <!-- delete button -->
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-4"
+          v-if="item.itemSelected"
+          @click="deleteItem(item.id)"
+        >
+          <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+          <g
+            id="SVGRepo_tracerCarrier"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          ></g>
+          <g id="SVGRepo_iconCarrier">
+            <path
+              d="M10 12V17"
+              stroke="#bd0505"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            ></path>
+            <path
+              d="M14 12V17"
+              stroke="#bd0505"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            ></path>
+            <path
+              d="M4 7H20"
+              stroke="#bd0505"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            ></path>
+            <path
+              d="M6 10V18C6 19.6569 7.34315 21 9 21H15C16.6569 21 18 19.6569 18 18V10"
+              stroke="#bd0505"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            ></path>
+            <path
+              d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7H9V5Z"
+              stroke="#bd0505"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            ></path>
+          </g>
+        </svg>
+        <div class="">{{ item.name }}</div>
+        <div class="flex">
+          <button class="">-</button>
+          <div class="">{{ item.amount }}</div>
+          <button class="">+</button>
         </div>
-        <div class="">
+        <!-- edit button -->
+        <svg
+          fill="#000000"
+          version="1.1"
+          id="Capa_1"
+          xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          viewBox="0 0 528.899 528.899"
+          xml:space="preserve"
+          class="w-4"
+          v-if="item.itemSelected"
+        >
+          <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+          <g
+            id="SVGRepo_tracerCarrier"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          ></g>
+          <g id="SVGRepo_iconCarrier">
+            <g>
+              <path
+                d="M328.883,89.125l107.59,107.589l-272.34,272.34L56.604,361.465L328.883,89.125z M518.113,63.177l-47.981-47.981 c-18.543-18.543-48.653-18.543-67.259,0l-45.961,45.961l107.59,107.59l53.611-53.611 C532.495,100.753,532.495,77.559,518.113,63.177z M0.3,512.69c-1.958,8.812,5.998,16.708,14.811,14.565l119.891-29.069 L27.473,390.597L0.3,512.69z"
+              ></path>
+            </g>
+          </g>
+        </svg>
+        <!-- <div class="">
           Category: <br />
-          {{ item.categoryId }}
-        </div>
+          {{ item.categoryId }}  // Sort each item into a category
+        </div> -->
         <!-- add the ability to add a comment to items -->
       </div>
     </div>
   </div>
 </template>
+
+<script>
+export default {
+  methods: {
+    toggleItemSelection(item) {
+      item.itemSelected = !item.itemSelected;
+    },
+  },
+};
+</script>

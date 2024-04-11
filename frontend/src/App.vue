@@ -8,7 +8,7 @@ import ShoppingList from "./components/ShoppingList.vue";
     <Navbar />
   </header>
 
-  <main class="h-full">
+  <main>
     <ShoppingList />
   </main>
 </template>

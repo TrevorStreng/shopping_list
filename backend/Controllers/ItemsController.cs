@@ -64,6 +64,22 @@ namespace backend.Controllers
       
       return NoContent();
     }
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> DeleteItem(int id) {    
+      var item = await _context.Items.FindAsync(id);
+
+      if(item == null) return NotFound();
+
+      try {
+        _context.Items.Remove(item);
+        await _context.SaveChangesAsync();
+      } catch(Exception ex) {
+        System.Console.WriteLine(ex);
+        return StatusCode(500, "An error occured while deleting item. 🤬");
+      }
+      
+      return NoContent();
+    }
 
   }
 }
