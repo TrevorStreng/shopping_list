@@ -10,7 +10,7 @@ public class Item
     public string? Name { get; set; }
 
     [Required]
-    public int Amount { get; set; }
+    public float Amount { get; set; }
 
     [Required]
     public int CategoryId { get; set; }

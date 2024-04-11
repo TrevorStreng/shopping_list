@@ -28,18 +28,20 @@ const addItem = async () => {
     const body = {
       name: itemName.value,
       amount: itemAmount.value,
+      // ! still need to get category id from category
       categoryId: 1,
     };
+    console.log(body);
     const newItem = await axios.post("http://localhost:5066/items", body);
     items.value.push(newItem.data);
   } catch (err) {
     console.error(err);
   }
 };
-const deleteItem = async (id) => {
-  console.log(id);
+const deleteItem = async (id, index) => {
   try {
     await axios.delete(`http://localhost:5066/items/${id}`);
+    items.value.splice(index, 1);
   } catch (err) {
     console.error(err);
   }
@@ -152,7 +154,7 @@ const deleteItem = async (id) => {
           xmlns="http://www.w3.org/2000/svg"
           class="w-4"
           v-if="item.itemSelected"
-          @click="deleteItem(item.id)"
+          @click="deleteItem(item.id, index)"
         >
           <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
           <g
@@ -200,9 +202,9 @@ const deleteItem = async (id) => {
         </svg>
         <div class="">{{ item.name }}</div>
         <div class="flex">
-          <button class="">-</button>
-          <div class="">{{ item.amount }}</div>
-          <button class="">+</button>
+          <button class="" @click.stop="item.amount--">-</button>
+          <input size="1" v-model="item.amount" class="w-10 text-center" />
+          <button class="" @click.stop="item.amount++">+</button>
         </div>
         <!-- edit button -->
         <svg
