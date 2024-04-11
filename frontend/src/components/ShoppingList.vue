@@ -52,12 +52,10 @@ const deleteItem = async (id, index) => {
   <div id="wrapper" class="flex justify-center">
     <!-- add button -->
     <div
-      class="flex items-center justify-center absolute right-4 w-8 h-8 bottom-8 w-16"
+      class="flex items-center justify-center absolute right-4 w-12 h-12 w-16 bottom-4"
       @click="isModalVisible = !isModalVisible"
     >
       <svg
-        height="216px"
-        width="216px"
         version="1.1"
         id="Capa_1"
         xmlns="http://www.w3.org/2000/svg"
@@ -67,6 +65,7 @@ const deleteItem = async (id, index) => {
         fill="#000000"
         stroke="#000000"
         stroke-width="0.00032"
+        class="w-full h-full"
       >
         <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
         <g
