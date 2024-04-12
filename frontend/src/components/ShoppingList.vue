@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import axios from "axios";
 
 let items = ref([]);
@@ -15,6 +15,19 @@ onMounted(() => {
     }
   };
   getItems();
+
+  const handleKeyDown = (event) => {
+    if (event.key === "Escape" && isModalVisible.value) {
+      isModalVisible.value = false;
+    }
+  };
+
+  window.addEventListener("keydown", handleKeyDown);
+
+  // Clean up the event listener when the component is unmounted
+  onUnmounted(() => {
+    window.removeEventListener("keydown", handleKeyDown);
+  });
 });
 
 // Add item section
