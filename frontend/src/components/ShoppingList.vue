@@ -24,7 +24,7 @@ onMounted(() => {
 
   window.addEventListener("keydown", handleKeyDown);
 
-  // Clean up the event listener when the component is unmounted
+  // Clean up
   onUnmounted(() => {
     window.removeEventListener("keydown", handleKeyDown);
   });
