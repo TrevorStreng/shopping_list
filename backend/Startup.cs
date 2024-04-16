@@ -5,6 +5,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using backend.Data;
+using Dapper;
+using MySql.Data.MySqlClient;
+using System.Data;
 
 namespace shoppingList.Api
 {
@@ -21,10 +24,13 @@ namespace shoppingList.Api
         public void ConfigureServices(IServiceCollection services)
         {
             // Configure DbContext and specify the MySQL connection string
-            services.AddDbContext<ShoppingCartContext>(options =>
-                options.UseMySQL(Configuration.GetConnectionString("ShoppingCart")!));
-            services.AddDbContext<UserContext>(options =>
-                options.UseMySQL(Configuration.GetConnectionString("ShoppingCart")!));
+            // services.AddDbContext<ShoppingCartContext>(options =>
+            //     options.UseMySQL(Configuration.GetConnectionString("ShoppingCart")!));
+            // services.AddDbContext<UserContext>(options =>
+            //     options.UseMySQL(Configuration.GetConnectionString("ShoppingCart")!));
+            string connectionString = Configuration.GetConnectionString("ShoppingCart")!;
+
+            services.AddScoped<IDbConnection>(provider => new MySqlConnection(connectionString));
 
             // ? Add CORS policy
             services.AddCors(options =>

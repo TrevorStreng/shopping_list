@@ -1,4 +1,5 @@
-﻿using backend.Data;
+﻿using System.Data;
+using backend.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,20 +9,22 @@ namespace backend.Controllers
   [Route("[controller]")]
   public class UsersController : ControllerBase
   {
-    private readonly UserContext _context;
+    private readonly IDbConnection _dbConnection;
 
-    public UsersController(UserContext context) {
-      Console.WriteLine("herre");
-      _context = context;
+    public UsersController(IDbConnection dbConnection) {
+      _dbConnection = dbConnection;
     }
 
-    [HttpGet]
-    public async Task<IActionResult> GetAllUsers() {
-      var users = await _context.Users.ToListAsync();
+    // [HttpGet]
+    // public async Task<IActionResult> GetAllUsers() {
+    //   var users = await _dbConnection.;
 
-      return Ok(users);
-    } 
+    //   return Ok(users);
+    // } 
 
   }
+
+  // Entity framework might be the reason for slow queries
+  // possibly try dapper
 }
 
