@@ -51,42 +51,47 @@ namespace backend.Controllers
 
     }
 
-    // [HttpPut("{id}")]
-    // public async Task<ActionResult> UpdateItem(int id, Item updatedItem) {
-    //   // ! this method only allows updating whole object not partial / make patch request if needed
-    //   var item = await _context.Items.FindAsync(id);
+    [HttpPut("{id}")]
+    public async Task<ActionResult> UpdateItem(int id, Item updatedItem) {
+      // ! this method only allows updating whole object not partial / make patch request if needed
+      var item = await _dbConnection.QuerySingleOrDefaultAsync<Item>("SELECT * FROM Items WHERE Id = @Id;", new{Id = id});
+      System.Console.WriteLine(item);
 
-    //   if(item == null) return NotFound();
+      if(item == null) return NotFound();
 
-    //   item.Name = updatedItem.Name;    
-    //   item.Amount = updatedItem.Amount;    
-    //   item.CategoryId = updatedItem.CategoryId;
+      var newItem = new {
+        updatedItem.Name,
+        updatedItem.Amount,
+        updatedItem.CategoryId,
+        Id = id
+      };
+
       
-    //   try {
-    //     await _context.SaveChangesAsync();
-    //   } catch(Exception ex) {
-    //     System.Console.WriteLine($"{ex}");
-    //     return StatusCode(500, "An error occured while updating item. 🤬");
-    //   }
-      
-    //   return NoContent();
-    // }
-    // [HttpDelete("{id}")]
-    // public async Task<ActionResult> DeleteItem(int id) {    
-    //   var item = await _context.Items.FindAsync(id);
+      try {
+        string query = "UPDATE Items SET Name = @Name, Amount = @Amount, CategoryId = @CategoryId WHERE Id = @Id;";
+        await _dbConnection.ExecuteAsync(query, newItem);
+      } catch(Exception ex) {
+        System.Console.WriteLine($"{ex}");
+        return StatusCode(500, "An error occured while updating item. 🤬");
+      }
+        return NoContent();
+    }
 
-    //   if(item == null) return NotFound();
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> DeleteItem(int id) {    
+      var item = await _dbConnection.QueryAsync("SELECT * FROM Items WHERE Id = @Id", new{Id = id});
 
-    //   try {
-    //     _context.Items.Remove(item);
-    //     await _context.SaveChangesAsync();
-    //   } catch(Exception ex) {
-    //     System.Console.WriteLine(ex);
-    //     return StatusCode(500, "An error occured while deleting item. 🤬");
-    //   }
+      if(item == null) return NotFound();
+
+      try {
+        await _dbConnection.ExecuteAsync("DELETE FROM Items WHERE Id = @Id", new{Id = id});
+      } catch(Exception ex) {
+        System.Console.WriteLine(ex);
+        return StatusCode(500, "An error occured while deleting item. 🤬");
+      }
       
-    //   return NoContent();
-    // }
+      return NoContent();
+    }
 
   }
 }
