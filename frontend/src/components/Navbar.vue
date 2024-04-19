@@ -33,7 +33,7 @@ const meunTranisition = () => {
 
 <template>
   <div
-    class="w-full flex justify-between px-5 h-12 items-center bg-green-100 z-40 relative"
+    class="w-full flex justify-between px-5 h-12 items-center bg-green-100 z-40 relative drop-shadow-lg"
   >
     <div class="">
       <RouterLink to="/">
