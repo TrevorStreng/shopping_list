@@ -5,6 +5,7 @@ import AddItem from "./AddItem.vue";
 
 let items = ref([]);
 let isModalVisible = ref(false);
+let itemEditing = ref(false);
 
 onMounted(() => {
   const getItems = async () => {
@@ -52,7 +53,8 @@ const deleteItem = async (id, index) => {
   <div id="wrapper" class="flex justify-center">
     <!-- add button -->
     <div
-      class="flex items-center justify-center absolute right-4 w-12 h-12 w-16 bottom-4"
+      class="flex items-center justify-center absolute right-4 bottom-4 w-14 h-14"
+      style="box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.5); border-radius: 50%"
       @click="isModalVisible = !isModalVisible"
     >
       <svg
@@ -86,6 +88,36 @@ const deleteItem = async (id, index) => {
       </svg>
     </div>
 
+    <!-- big edit button -->
+    <div
+      class="flex items-center justify-center absolute left-4 bottom-4 w-10 h-10"
+      @click="itemEditing = !itemEditing"
+    >
+      <svg
+        fill="#000000"
+        version="1.1"
+        id="Capa_1"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        viewBox="0 0 528.899 528.899"
+        xml:space="preserve"
+      >
+        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+        <g
+          id="SVGRepo_tracerCarrier"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        ></g>
+        <g id="SVGRepo_iconCarrier">
+          <g>
+            <path
+              d="M328.883,89.125l107.59,107.589l-272.34,272.34L56.604,361.465L328.883,89.125z M518.113,63.177l-47.981-47.981 c-18.543-18.543-48.653-18.543-67.259,0l-45.961,45.961l107.59,107.59l53.611-53.611 C532.495,100.753,532.495,77.559,518.113,63.177z M0.3,512.69c-1.958,8.812,5.998,16.708,14.811,14.565l119.891-29.069 L27.473,390.597L0.3,512.69z"
+            ></path>
+          </g>
+        </g>
+      </svg>
+    </div>
+
     <!-- add item modal -->
     <AddItem v-if="isModalVisible" @addItem="addItemToList" />
 
@@ -95,7 +127,6 @@ const deleteItem = async (id, index) => {
         class="flex items-center justify-evenly h-20"
         v-for="(item, index) in items"
         :key="index"
-        @click="toggleItemSelection(item)"
       >
         <!-- delete button -->
         <svg
@@ -103,7 +134,7 @@ const deleteItem = async (id, index) => {
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           class="w-4"
-          v-if="item.itemSelected"
+          v-if="itemEditing"
           @click="deleteItem(item.id, index)"
         >
           <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -166,7 +197,7 @@ const deleteItem = async (id, index) => {
           viewBox="0 0 528.899 528.899"
           xml:space="preserve"
           class="w-4"
-          v-if="item.itemSelected"
+          v-if="itemEditing"
         >
           <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
           <g
@@ -192,7 +223,7 @@ const deleteItem = async (id, index) => {
   </div>
 </template>
 
-<script>
+<!-- <script>
 export default {
   methods: {
     toggleItemSelection(item) {
@@ -200,4 +231,4 @@ export default {
     },
   },
 };
-</script>
+</script> -->
