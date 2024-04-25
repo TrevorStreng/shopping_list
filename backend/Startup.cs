@@ -1,13 +1,9 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.EntityFrameworkCore;
-using backend.Data;
-using Dapper;
+﻿using Dapper;
 using MySql.Data.MySqlClient;
 using System.Data;
+using backend.Services;
+using backend.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace shoppingList.Api
 {
@@ -23,11 +19,6 @@ namespace shoppingList.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // Configure DbContext and specify the MySQL connection string
-            // services.AddDbContext<ShoppingCartContext>(options =>
-            //     options.UseMySQL(Configuration.GetConnectionString("ShoppingCart")!));
-            // services.AddDbContext<UserContext>(options =>
-            //     options.UseMySQL(Configuration.GetConnectionString("ShoppingCart")!));
             string connectionString = Configuration.GetConnectionString("ShoppingCart")!;
 
             services.AddScoped<IDbConnection>(provider => new MySqlConnection(connectionString));
@@ -43,6 +34,9 @@ namespace shoppingList.Api
                                .AllowAnyMethod();
                     });
             });
+
+            services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+            services.AddScoped<PasswordHashingService>();
 
             services.AddControllers();
         }

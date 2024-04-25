@@ -1,4 +1,8 @@
 <script setup>
+/*
+1. make ach person have their own list
+*/
+
 import { ref, onMounted, onUnmounted } from "vue";
 import axios from "axios";
 import AddItem from "./AddItem.vue";
@@ -8,6 +12,7 @@ let isModalVisible = ref(false);
 let itemEditing = ref(false);
 
 onMounted(() => {
+  // ! need to get only the persons shopping list
   const getItems = async () => {
     try {
       const list = await axios.get("http://localhost:5066/items");
@@ -41,6 +46,7 @@ const addItemToList = (newItem) => {
 // ^ change edit items to a button at the top to prevent accidental clicks
 const deleteItem = async (id, index) => {
   try {
+    console.log(id);
     await axios.delete(`http://localhost:5066/items/${id}`);
     items.value.splice(index, 1);
   } catch (err) {
@@ -90,7 +96,7 @@ const deleteItem = async (id, index) => {
 
     <!-- big edit button -->
     <div
-      class="flex items-center justify-center absolute left-4 bottom-4 w-10 h-10"
+      class="flex items-center justify-center absolute left-4 bottom-4 w-8 h-8"
       @click="itemEditing = !itemEditing"
     >
       <svg

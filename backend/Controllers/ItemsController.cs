@@ -1,5 +1,4 @@
-﻿using backend.Data;
-using backend.Models;
+﻿using backend.Models;
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

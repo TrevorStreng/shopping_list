@@ -44,6 +44,7 @@ const meunTranisition = () => {
       <p>Login</p>
       <p>Recipes</p>
     </div> -->
+    <div class="font-bold">Cart2Go</div>
     <div
       id="dropdown_menu"
       class="h-6 w-8 flex flex-col justify-between z-0"
