@@ -1,9 +1,12 @@
 ﻿using System.Data;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 using backend.Models;
 using backend.Services;
 using Dapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 
 namespace backend.Controllers
 {
@@ -13,10 +16,12 @@ namespace backend.Controllers
   {
     private readonly IDbConnection _dbConnection;
     private readonly PasswordHashingService _passwordHashingService;
+    private IConfiguration _config;
 
-    public UsersController(IDbConnection dbConnection, PasswordHashingService passwordHashingService) {
+    public UsersController(IDbConnection dbConnection, PasswordHashingService passwordHashingService, IConfiguration config) {
       _dbConnection = dbConnection;
       _passwordHashingService = passwordHashingService;
+      _config = config;
     }
 
     [HttpGet]
@@ -60,7 +65,7 @@ namespace backend.Controllers
 
     [HttpPost]
     [Route("CreateUser")]
-    public async Task<ActionResult> CreateUser(User user) {
+    public async Task<ActionResult> CreateUser([FromBody]User user) {
       try {
         // check if email and password are in use
         if(await CheckUsername(user.UserName!)) return BadRequest(user.UserName + "Username is already in use!");
@@ -79,9 +84,21 @@ namespace backend.Controllers
       }
     }
 
+    private string GenerateJWT() {
+      var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
+      var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+      var token = new JwtSecurityToken(_config["Jwt:Issuer"],
+        _config["Jwt:Issuer"],
+        null,
+        expires: DateTime.Now.AddHours(72),
+        signingCredentials: credentials);
+      return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
     [HttpPost]
     [Route("Login")]
-    public async Task<ActionResult> Login(User req) {
+    public async Task<ActionResult> Login([FromBody]User req) {
       try {
         string query = "SELECT * FROM Users WHERE Username = @Username;";
         var user = await _dbConnection.QuerySingleOrDefaultAsync(query, new {Username = req.UserName});
@@ -94,8 +111,11 @@ namespace backend.Controllers
         if(!passwordCheck) return BadRequest("Invalid Password..");
 
         // TODO: If password check passes create and send sign in token
+        var token = GenerateJWT();
 
-        return Ok(req.UserName + " logged in");
+        Response.Headers.Append("Authorization", "Bearer" + token);
+
+        return Ok(req.UserName + " logged in" + new {token});
       } catch(Exception ex) {
         return BadRequest(ex.Message);
       }
