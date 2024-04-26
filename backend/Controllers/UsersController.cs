@@ -2,6 +2,7 @@
 using backend.Models;
 using backend.Services;
 using Dapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers
@@ -85,16 +86,16 @@ namespace backend.Controllers
         string query = "SELECT * FROM Users WHERE Username = @Username;";
         var user = await _dbConnection.QuerySingleOrDefaultAsync(query, new {Username = req.UserName});
         if(user == null) return BadRequest("Invalid username.🤬");
-
-        System.Console.WriteLine(req.UserName + " " + user.UserName);
         
-        // bool passwordCheck = _passwordHashingService.VerifyPassword(user.password, req.PasswordHash);
+        bool passwordCheck = _passwordHashingService.VerifyPassword(user.password, req.Password!);
 
-        // if(!passwordCheck) return BadRequest("Invalid Password..");
+        req.Password = null;
+
+        if(!passwordCheck) return BadRequest("Invalid Password..");
 
         // TODO: If password check passes create and send sign in token
 
-        return Ok(user + " logged in");
+        return Ok(req.UserName + " logged in");
       } catch(Exception ex) {
         return BadRequest(ex.Message);
       }
