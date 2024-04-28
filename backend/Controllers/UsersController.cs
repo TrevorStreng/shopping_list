@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 using backend.Models;
 using backend.Services;
@@ -7,6 +8,9 @@ using Dapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication;
+using Org.BouncyCastle.Bcpg;
+using Microsoft.AspNetCore.Authorization;
 
 namespace backend.Controllers
 {
@@ -72,7 +76,7 @@ namespace backend.Controllers
         if(await CheckEmail(user.Email!)) return BadRequest(user.Email + "Email is already in use!");
 
         // hash password
-        string hashedPassword = _passwordHashingService.HashPassword(user.PasswordHash!);
+        string hashedPassword = _passwordHashingService.HashPassword(user.Password!);
 
         string query = "INSERT INTO Users (username, password, email) values (@UserName, @PasswordHash, @Email);";
         var newUser = new User {UserName = user.UserName, PasswordHash = hashedPassword, Email = user.Email};
@@ -84,42 +88,139 @@ namespace backend.Controllers
       }
     }
 
-    private string GenerateJWT() {
+    private string GenerateJWT(int userId) {
       var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
       var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
+      var claims = new[] {
+        new Claim(JwtRegisteredClaimNames.Sid, userId.ToString())
+      };
+
       var token = new JwtSecurityToken(_config["Jwt:Issuer"],
         _config["Jwt:Issuer"],
-        null,
+        claims,
         expires: DateTime.Now.AddHours(72),
         signingCredentials: credentials);
       return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
+    private void setHeaderJwtHeader(string token) {
+      Response.Headers.Append("Authorization", "Bearer " + token);
+    }
+
     [HttpPost]
     [Route("Login")]
-    public async Task<ActionResult> Login([FromBody]User req) {
+    public async Task<ActionResult> Login([FromBody]UserRequestDto req) {
       try {
         string query = "SELECT * FROM Users WHERE Username = @Username;";
-        var user = await _dbConnection.QuerySingleOrDefaultAsync(query, new {Username = req.UserName});
+        var user = await _dbConnection.QuerySingleOrDefaultAsync(query, new {Username = req.username});
         if(user == null) return BadRequest("Invalid username.🤬");
         
-        bool passwordCheck = _passwordHashingService.VerifyPassword(user.password, req.Password!);
+        bool passwordCheck = _passwordHashingService.VerifyPassword(user.password, req.password);
 
-        req.Password = null;
+        // req.password = null;
 
         if(!passwordCheck) return BadRequest("Invalid Password..");
 
-        // TODO: If password check passes create and send sign in token
-        var token = GenerateJWT();
+        var token = GenerateJWT(user.id);
 
-        Response.Headers.Append("Authorization", "Bearer" + token);
+        setHeaderJwtHeader(token);
 
-        return Ok(req.UserName + " logged in" + new {token});
+        return Ok(req.username + " logged in" + new {token});
       } catch(Exception ex) {
         return BadRequest(ex.Message);
       }
     }
+
+    // public async Task<ActionResult> Logout() {}
+
+    private int GetUserIdFromtoken() {
+    // Retrieve the Authorization header from the request
+    string authHeader = HttpContext.Request.Headers["Authorization"]!;
+
+    // Check if the Authorization header exists and starts with "Bearer "
+    if (authHeader != null && authHeader.StartsWith("Bearer "))
+    {
+        // Extract the JWT token from the Authorization header
+        string token = authHeader.Substring("Bearer ".Length).Trim();
+
+        // Now you can parse and validate the JWT token to extract user information, such as username
+        JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+        SecurityToken securityToken;
+        ClaimsPrincipal claimsPrincipal = tokenHandler.ValidateToken(token, new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!)),
+            ValidateIssuer = true,
+            ValidIssuer = _config["Jwt:Issuer"],
+            ValidateAudience = true,
+            ValidAudience = _config["Jwt:Issuer"],
+            ValidateLifetime = true
+        }, out securityToken);
+        
+        // Retrieve the username claim from the validated claims principal
+        Claim usernameClaim = claimsPrincipal.FindFirst(JwtRegisteredClaimNames.Sid)!;
+        if (usernameClaim != null)
+        {
+            // Return the id extracted from the token
+            return int.Parse(usernameClaim.Value);
+        }
+    }
+    return -1; 
+
+
+    }
+
+    [HttpGet]
+    [Route("GetUserItems")]
+    public async Task<ActionResult> GetUsersItems() {
+      //! get user from token
+      try {
+        int userId = GetUserIdFromtoken();
+
+        string query = "select UserItems.UserId, Items.name from UserItems inner join Items on UserItems.ItemId = items.id where userId = @userId;";
+        var items = await _dbConnection.QueryAsync(query, new {UserId = userId});
+
+        return Ok(items);
+      } catch(Exception ex) {
+        return BadRequest(ex.Message);
+      }
+    }
+
+    [HttpPost]
+    [Route("AddItemToUser")]
+    public async Task<ActionResult> AddUserItem([FromBody]UserItemDto req) {
+      // ! might need to get user from logged in token instead of request
+      try {
+        // check if item exists and create it if not
+        string findItemQuery = "select * from items where name = @name";
+        var item = await _dbConnection.QuerySingleOrDefaultAsync(findItemQuery, new {name = req.itemName});
+        if(item == null) {
+          string insertItemQuery = "insert into items(name) values (@Name);";
+          await _dbConnection.ExecuteAsync(insertItemQuery, new {Name = req.itemName});
+          item = await _dbConnection.QuerySingleOrDefaultAsync(findItemQuery, new {Name = req.itemName});
+        }
+
+        if(item == null) return BadRequest("Error adding or finding item..");
+
+        // find user
+        string findUserQuery = "select * from users where username = @Username";
+        var user = await _dbConnection.QuerySingleOrDefaultAsync(findUserQuery, new {Username = req.username});
+
+        if(user == null) return BadRequest("User not found..");
+
+        // add item userItems
+        string AddItemToUserQuery = "insert into UserItems (userId, itemId) values (@userId, @itemId);";
+        await _dbConnection.ExecuteAsync(AddItemToUserQuery, new {userId = user.id, itemId = item.id});
+
+        return Ok(new {user, item});
+      } catch(Exception ex) {
+        return BadRequest(ex.Message);
+      }
+    }
+
   }
 }
+
+// Out of context twitch clips
 
