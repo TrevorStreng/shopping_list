@@ -15,7 +15,9 @@ onMounted(() => {
   // ! need to get only the persons shopping list
   const getItems = async () => {
     try {
-      const list = await axios.get("http://localhost:5066/items");
+      console.log(axios.defaults.headers);
+      const list = await axios.get("http://localhost:5066/users/GetUserItems");
+      console.log(list);
       items.value = list.data;
     } catch (err) {
       console.error(err);

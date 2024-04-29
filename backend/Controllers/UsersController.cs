@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication;
 using Org.BouncyCastle.Bcpg;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Net.Http.Headers;
 
 namespace backend.Controllers
 {
@@ -105,7 +106,8 @@ namespace backend.Controllers
     }
 
     private void setHeaderJwtHeader(string token) {
-      Response.Headers.Append("Authorization", "Bearer " + token);
+      // Response.Headers.Append("Authorization", "Bearer " + token);
+      Response.Cookies.Append("jwt", "Bearer " + token);
     }
 
     [HttpPost]
@@ -136,7 +138,9 @@ namespace backend.Controllers
 
     private int GetUserIdFromtoken() {
     // Retrieve the Authorization header from the request
-    string authHeader = HttpContext.Request.Headers["Authorization"]!;
+    // string authHeader = HttpContext.Request.Headers["Authorization"]!;
+    string authHeader = Request.Cookies["jwt"]!;
+    System.Console.WriteLine(authHeader);
 
     // Check if the Authorization header exists and starts with "Bearer "
     if (authHeader != null && authHeader.StartsWith("Bearer "))

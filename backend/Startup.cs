@@ -36,6 +36,7 @@ namespace shoppingList.Api
                         builder.AllowAnyOrigin()
                                .AllowAnyHeader()
                                .AllowAnyMethod();
+                            //    .WithExposedHeaders("Access-Token", "Uid");
                     });
             });
 
