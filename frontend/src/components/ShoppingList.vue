@@ -14,11 +14,14 @@ let itemEditing = ref(false);
 onMounted(() => {
   // ! need to get only the persons shopping list
   const getItems = async () => {
+    // TODO: itemQuxntity is not being updated on click
     try {
-      console.log(axios.defaults.headers);
+      // console.log(axios.defaults.headers);
+      axios.defaults.withCredentials = true;
       const list = await axios.get("http://localhost:5066/users/GetUserItems");
       console.log(list);
       items.value = list.data;
+      console.log(items);
     } catch (err) {
       console.error(err);
     }
@@ -191,9 +194,13 @@ const deleteItem = async (id, index) => {
         </svg>
         <div class="">{{ item.name }}</div>
         <div class="flex">
-          <button class="" @click.stop="item.amount--">-</button>
-          <input size="1" v-model="item.amount" class="w-10 text-center" />
-          <button class="" @click.stop="item.amount++">+</button>
+          <button class="" @click.stop="item.itemQuantity--">-</button>
+          <input
+            size="1"
+            v-model="item.itemQuantity"
+            class="w-10 text-center"
+          />
+          <button class="" @click.stop="item.itemQuantity++">+</button>
         </div>
         <!-- edit button -->
         <svg

@@ -6,12 +6,21 @@ const password = ref("");
 
 const login = async () => {
   try {
-    const body = { username: username.value, password: password.value };
+    const body = {
+      withCredentials: true,
+      username: username.value,
+      password: password.value,
+    };
 
+    axios.defaults.withCredentials = true;
     const res = await axios.post("http://localhost:5066/users/Login", body);
+    console.log(document.cookie);
     // const token = res.headers["Authorization"];
     // console.log(token);
     // sessionStorage.setItem("jwt", token);
+    console.log(res);
+    // const list = await axios.get("http://localhost:5066/users/GetUserItems");
+    // console.log(list);
   } catch (err) {
     console.error(err);
   }

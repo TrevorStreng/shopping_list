@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Authentication;
 using Org.BouncyCastle.Bcpg;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Net.Http.Headers;
+using System.Net;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 namespace backend.Controllers
 {
@@ -105,28 +107,31 @@ namespace backend.Controllers
       return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    private void setHeaderJwtHeader(string token) {
-      // Response.Headers.Append("Authorization", "Bearer " + token);
-      Response.Cookies.Append("jwt", "Bearer " + token);
+    private void setJwtHeader(string token) {
+      Response.Cookies.Append("jwt", "Bearer " + token, new CookieOptions 
+      {
+        HttpOnly = true,
+        Expires = DateTime.Now.AddDays(30),
+        // Secure = true
+      });
     }
 
     [HttpPost]
     [Route("Login")]
     public async Task<ActionResult> Login([FromBody]UserRequestDto req) {
       try {
+        System.Console.WriteLine(req);
         string query = "SELECT * FROM Users WHERE Username = @Username;";
         var user = await _dbConnection.QuerySingleOrDefaultAsync(query, new {Username = req.username});
         if(user == null) return BadRequest("Invalid username.🤬");
         
         bool passwordCheck = _passwordHashingService.VerifyPassword(user.password, req.password);
 
-        // req.password = null;
-
         if(!passwordCheck) return BadRequest("Invalid Password..");
 
         var token = GenerateJWT(user.id);
 
-        setHeaderJwtHeader(token);
+        setJwtHeader(token);
 
         return Ok(req.username + " logged in" + new {token});
       } catch(Exception ex) {
@@ -138,15 +143,14 @@ namespace backend.Controllers
 
     private int GetUserIdFromtoken() {
     // Retrieve the Authorization header from the request
-    // string authHeader = HttpContext.Request.Headers["Authorization"]!;
-    string authHeader = Request.Cookies["jwt"]!;
-    System.Console.WriteLine(authHeader);
+    Request.Cookies.TryGetValue("jwt", out var jwtToken);
+    System.Console.WriteLine(jwtToken);
 
     // Check if the Authorization header exists and starts with "Bearer "
-    if (authHeader != null && authHeader.StartsWith("Bearer "))
+    if (jwtToken != null && jwtToken.StartsWith("Bearer "))
     {
         // Extract the JWT token from the Authorization header
-        string token = authHeader.Substring("Bearer ".Length).Trim();
+        string token = jwtToken.Substring("Bearer ".Length).Trim();
 
         // Now you can parse and validate the JWT token to extract user information, such as username
         JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
@@ -182,7 +186,7 @@ namespace backend.Controllers
       try {
         int userId = GetUserIdFromtoken();
 
-        string query = "select UserItems.UserId, Items.name from UserItems inner join Items on UserItems.ItemId = items.id where userId = @userId;";
+        string query = "select UserItems.UserId, Items.name, UserItems.itemQuantity from UserItems inner join Items on UserItems.ItemId = items.id where userId = @userId;";
         var items = await _dbConnection.QueryAsync(query, new {UserId = userId});
 
         return Ok(items);

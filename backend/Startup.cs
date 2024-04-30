@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.AspNetCore.Authentication.Cookies;
+
 
 
 namespace shoppingList.Api
@@ -30,12 +32,13 @@ namespace shoppingList.Api
             // ? Add CORS policy
             services.AddCors(options =>
             {
-                options.AddPolicy("AllowSpecificOrigin",
+                options.AddPolicy("AllowOrigin",
                     builder =>
                     {
-                        builder.AllowAnyOrigin()
+                        builder.WithOrigins("http://localhost:5173")
                                .AllowAnyHeader()
-                               .AllowAnyMethod();
+                               .AllowAnyMethod()
+                               .AllowCredentials();
                             //    .WithExposedHeaders("Access-Token", "Uid");
                     });
             });
@@ -57,6 +60,24 @@ namespace shoppingList.Api
                 };
             });
 
+                // Add authentication services
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            })
+            .AddCookie(options =>
+            {
+                options.Cookie.Name = "jwt"; // Optional: Specify the name of the cookie
+                options.Cookie.HttpOnly = true; // Set HttpOnly to true for security
+                // options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Recommended: Set to Always if served over HTTPS
+                options.Cookie.SameSite = SameSiteMode.None; // Optional: Specify the SameSite attribute
+                // options.LoginPath = "/users/Login"; // Optional: Specify the login path
+            });
+
+            services.AddControllersWithViews();
+
             services.AddControllers();
         }
 
@@ -73,7 +94,7 @@ namespace shoppingList.Api
                 app.UseHsts();
             }
 
-            app.UseCors("AllowSpecificOrigin");
+            app.UseCors("AllowOrigin");
 
             // !!!!! app.UseHttpsRedirection();
             app.UseRouting();
@@ -84,6 +105,7 @@ namespace shoppingList.Api
                 endpoints.MapControllers();
             });
             app.UseAuthentication();
+            // app.UseHttpsRedirection();
         }
     }
 }
