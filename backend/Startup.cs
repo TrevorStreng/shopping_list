@@ -76,7 +76,8 @@ namespace shoppingList.Api
                 // options.LoginPath = "/users/Login"; // Optional: Specify the login path
             });
 
-            services.AddControllersWithViews();
+            // services.AddControllersWithViews();
+            services.AddScoped<TokenService>();
 
             services.AddControllers();
         }

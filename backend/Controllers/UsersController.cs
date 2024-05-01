@@ -5,15 +5,8 @@ using System.Text;
 using backend.Models;
 using backend.Services;
 using Dapper;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Authentication;
-using Org.BouncyCastle.Bcpg;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.Net.Http.Headers;
-using System.Net;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 namespace backend.Controllers
 {
@@ -24,11 +17,13 @@ namespace backend.Controllers
     private readonly IDbConnection _dbConnection;
     private readonly PasswordHashingService _passwordHashingService;
     private IConfiguration _config;
+    private readonly TokenService _tokenService;
 
-    public UsersController(IDbConnection dbConnection, PasswordHashingService passwordHashingService, IConfiguration config) {
+    public UsersController(IDbConnection dbConnection, PasswordHashingService passwordHashingService, IConfiguration config, TokenService tokenService) {
       _dbConnection = dbConnection;
       _passwordHashingService = passwordHashingService;
       _config = config;
+      _tokenService = tokenService;
     }
 
     [HttpGet]
@@ -91,21 +86,21 @@ namespace backend.Controllers
       }
     }
 
-    private string GenerateJWT(int userId) {
-      var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
-      var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+    // private string GenerateJWT(int userId) {
+    //   var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
+    //   var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-      var claims = new[] {
-        new Claim(JwtRegisteredClaimNames.Sid, userId.ToString())
-      };
+    //   var claims = new[] {
+    //     new Claim(JwtRegisteredClaimNames.Sid, userId.ToString())
+    //   };
 
-      var token = new JwtSecurityToken(_config["Jwt:Issuer"],
-        _config["Jwt:Issuer"],
-        claims,
-        expires: DateTime.Now.AddHours(72),
-        signingCredentials: credentials);
-      return new JwtSecurityTokenHandler().WriteToken(token);
-    }
+    //   var token = new JwtSecurityToken(_config["Jwt:Issuer"],
+    //     _config["Jwt:Issuer"],
+    //     claims,
+    //     expires: DateTime.Now.AddHours(72),
+    //     signingCredentials: credentials);
+    //   return new JwtSecurityTokenHandler().WriteToken(token);
+    // }
 
     private void setJwtHeader(string token) {
       Response.Cookies.Append("jwt", "Bearer " + token, new CookieOptions 
@@ -120,7 +115,6 @@ namespace backend.Controllers
     [Route("Login")]
     public async Task<ActionResult> Login([FromBody]UserRequestDto req) {
       try {
-        System.Console.WriteLine(req);
         string query = "SELECT * FROM Users WHERE Username = @Username;";
         var user = await _dbConnection.QuerySingleOrDefaultAsync(query, new {Username = req.username});
         if(user == null) return BadRequest("Invalid username.🤬");
@@ -129,7 +123,7 @@ namespace backend.Controllers
 
         if(!passwordCheck) return BadRequest("Invalid Password..");
 
-        var token = GenerateJWT(user.id);
+        var token = _tokenService.GenerateJWT(user.id);
 
         setJwtHeader(token);
 
@@ -139,12 +133,13 @@ namespace backend.Controllers
       }
     }
 
-    // public async Task<ActionResult> Logout() {}
+    // public async Task<ActionResult> Logout() {
+    //   set token to expired
+    // }
 
     private int GetUserIdFromtoken() {
     // Retrieve the Authorization header from the request
     Request.Cookies.TryGetValue("jwt", out var jwtToken);
-    System.Console.WriteLine(jwtToken);
 
     // Check if the Authorization header exists and starts with "Bearer "
     if (jwtToken != null && jwtToken.StartsWith("Bearer "))
@@ -175,8 +170,6 @@ namespace backend.Controllers
         }
     }
     return -1; 
-
-
     }
 
     [HttpGet]

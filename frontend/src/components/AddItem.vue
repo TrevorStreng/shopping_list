@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineEmits } from "vue";
+import { ref } from "vue";
 import axios from "axios";
 
 const emits = defineEmits(["addItem", "closeModal"]);
@@ -19,6 +19,7 @@ const addItem = async () => {
       categoryId: 1,
     };
     const newItem = await axios.post("http://localhost:5066/items", body);
+
     emits("addItem", body);
     emits("closeModal");
   } catch (err) {

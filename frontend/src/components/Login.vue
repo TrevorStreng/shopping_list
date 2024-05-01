@@ -1,8 +1,11 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from "vue";
 import axios from "axios";
+import { useRouter } from "vue-router";
 const username = ref("");
 const password = ref("");
+
+const router = new useRouter();
 
 const login = async () => {
   try {
@@ -14,13 +17,7 @@ const login = async () => {
 
     axios.defaults.withCredentials = true;
     const res = await axios.post("http://localhost:5066/users/Login", body);
-    console.log(document.cookie);
-    // const token = res.headers["Authorization"];
-    // console.log(token);
-    // sessionStorage.setItem("jwt", token);
-    console.log(res);
-    // const list = await axios.get("http://localhost:5066/users/GetUserItems");
-    // console.log(list);
+    router.push("/");
   } catch (err) {
     console.error(err);
   }

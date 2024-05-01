@@ -1,8 +1,4 @@
 <script setup>
-/*
-1. make ach person have their own list
-*/
-
 import { ref, onMounted, onUnmounted } from "vue";
 import axios from "axios";
 import AddItem from "./AddItem.vue";
@@ -14,14 +10,11 @@ let itemEditing = ref(false);
 onMounted(() => {
   // ! need to get only the persons shopping list
   const getItems = async () => {
-    // TODO: itemQuxntity is not being updated on click
+    // TODO: itemQuantity is not being updated on click
     try {
-      // console.log(axios.defaults.headers);
       axios.defaults.withCredentials = true;
       const list = await axios.get("http://localhost:5066/users/GetUserItems");
-      console.log(list);
       items.value = list.data;
-      console.log(items);
     } catch (err) {
       console.error(err);
     }
@@ -42,7 +35,7 @@ onMounted(() => {
   });
 });
 
-// // Add item section
+// Add item section
 const addItemToList = (newItem) => {
   items.value.push(newItem);
   isModalVisible.value = false;
