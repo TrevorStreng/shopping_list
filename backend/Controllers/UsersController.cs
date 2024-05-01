@@ -189,10 +189,10 @@ namespace backend.Controllers
     }
 
     [HttpPost]
-    [Route("AddItemToUser")]
+    [Route("AddUserItem")]
     public async Task<ActionResult> AddUserItem([FromBody]UserItemDto req) {
-      // ! might need to get user from logged in token instead of request
       try {
+        System.Console.WriteLine(req);
         // check if item exists and create it if not
         string findItemQuery = "select * from items where name = @name";
         var item = await _dbConnection.QuerySingleOrDefaultAsync(findItemQuery, new {name = req.itemName});
@@ -205,16 +205,48 @@ namespace backend.Controllers
         if(item == null) return BadRequest("Error adding or finding item..");
 
         // find user
-        string findUserQuery = "select * from users where username = @Username";
-        var user = await _dbConnection.QuerySingleOrDefaultAsync(findUserQuery, new {Username = req.username});
+        int userId = GetUserIdFromtoken();
+
+        string findUserQuery = "select * from users where id = @Id";
+        var user = await _dbConnection.QuerySingleOrDefaultAsync(findUserQuery, new {Id = userId});
 
         if(user == null) return BadRequest("User not found..");
 
         // add item userItems
-        string AddItemToUserQuery = "insert into UserItems (userId, itemId) values (@userId, @itemId);";
-        await _dbConnection.ExecuteAsync(AddItemToUserQuery, new {userId = user.id, itemId = item.id});
+        string AddItemToUserQuery = "insert into UserItems (userId, itemId, itemQuantity) values (@userId, @itemId, @itemQuantity);";
+        await _dbConnection.ExecuteAsync(AddItemToUserQuery, new {userId = user.id, itemId = item.id, req.itemQuantity});
 
         return Ok(new {user, item});
+      } catch(Exception ex) {
+        return BadRequest(ex.Message);
+      }
+    }
+
+    [HttpDelete("RemoveUserItem")]
+    public async Task<IActionResult> RemoveUserItem([FromQuery]string itemName) {
+      try {
+        int userId = GetUserIdFromtoken();
+
+        string query = "DELETE ui FROM UserItems AS ui JOIN Items AS i on ui.itemId = i.id WHERE ui.userId = @UserId AND i.name = @ItemName;";
+        await _dbConnection.ExecuteAsync(query, new { userId, itemName});
+
+        System.Console.WriteLine("here");
+        return Ok("Item removed from User");
+      } catch(Exception ex) {
+        return BadRequest(ex.Message);
+      }
+    }
+
+    [HttpPost]
+    [Route("UpdateUserItemQuantity")]
+    public async Task<IActionResult> UpdateUserItemQuantity([FromBody] UserItemDto req) {
+      try {
+        int userId = GetUserIdFromtoken();
+
+        string query = "UPDATE UserItems AS ui JOIN Items AS i ON ui.ItemId = i.id JOIN Users AS u ON ui.UserId = u.id SET ui.itemQuantity = @Quantity WHERE u.id = @UserId AND i.name = @ItemName;";
+        await _dbConnection.ExecuteAsync(query, new {Quantity = req.itemQuantity, userId, ItemName = req.itemName });
+
+        return NoContent();
       } catch(Exception ex) {
         return BadRequest(ex.Message);
       }
