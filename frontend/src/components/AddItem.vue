@@ -13,12 +13,15 @@ const addItem = async () => {
   // ? idk if I should store this in local storage for now or straight to the database
   try {
     const body = {
-      name: itemName.value,
-      amount: itemAmount.value,
+      itemName: itemName.value,
+      itemQuantity: itemAmount.value,
       // ! still need to get category id from category
-      categoryId: 1,
+      // categoryId: 1,
     };
-    const newItem = await axios.post("http://localhost:5066/items", body);
+    const newItem = await axios.post(
+      "http://localhost:5066/users/AddUserItem",
+      body
+    );
 
     emits("addItem", body);
     emits("closeModal");
@@ -42,7 +45,7 @@ const addItem = async () => {
           name="item_name"
           size="15"
           class="border"
-          placeholder="brocolli"
+          placeholder="food"
           v-model="itemName"
         />
       </div>
@@ -64,7 +67,7 @@ const addItem = async () => {
           name="item_category"
           size="15"
           class="border"
-          placeholder="produce"
+          placeholder="category"
           v-model="itemCategory"
         />
       </div>

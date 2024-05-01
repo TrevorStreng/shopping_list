@@ -36,17 +36,38 @@ onMounted(() => {
 });
 
 // Add item section
-const addItemToList = (newItem) => {
+const addItemToList = (newItemData) => {
+  const newItem = {
+    name: newItemData.itemName,
+    itemQuantity: newItemData.itemQuantity,
+    // Add other properties as needed
+  };
   items.value.push(newItem);
   isModalVisible.value = false;
 };
 
 // ^ change edit items to a button at the top to prevent accidental clicks
-const deleteItem = async (id, index) => {
+const deleteItem = async (itemName, index) => {
   try {
-    console.log(id);
-    await axios.delete(`http://localhost:5066/items/${id}`);
+    await axios.delete(
+      `http://localhost:5066/users/RemoveUserItem?itemName=${itemName}`
+    );
     items.value.splice(index, 1);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const updateQuantity = async (item) => {
+  try {
+    const body = {
+      itemName: item.name,
+      itemQuantity: item.itemQuantity,
+    };
+    await axios.post(
+      "http://localhost:5066/users/UpdateUserItemQuantity",
+      body
+    );
   } catch (err) {
     console.error(err);
   }
@@ -139,7 +160,7 @@ const deleteItem = async (id, index) => {
           xmlns="http://www.w3.org/2000/svg"
           class="w-4"
           v-if="itemEditing"
-          @click="deleteItem(item.id, index)"
+          @click="deleteItem(item.name, index)"
         >
           <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
           <g
@@ -187,13 +208,33 @@ const deleteItem = async (id, index) => {
         </svg>
         <div class="">{{ item.name }}</div>
         <div class="flex">
-          <button class="" @click.stop="item.itemQuantity--">-</button>
+          <button
+            class=""
+            @click.stop="
+              {
+                item.itemQuantity--;
+                updateQuantity(item);
+              }
+            "
+          >
+            -
+          </button>
           <input
             size="1"
             v-model="item.itemQuantity"
             class="w-10 text-center"
           />
-          <button class="" @click.stop="item.itemQuantity++">+</button>
+          <button
+            class=""
+            @click.stop="
+              {
+                item.itemQuantity++;
+                updateQuantity(item);
+              }
+            "
+          >
+            +
+          </button>
         </div>
         <!-- edit button -->
         <svg
