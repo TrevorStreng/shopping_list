@@ -179,7 +179,7 @@ namespace backend.Controllers
       try {
         int userId = GetUserIdFromtoken();
 
-        string query = "select UserItems.UserId, Items.name, UserItems.itemQuantity from UserItems inner join Items on UserItems.ItemId = items.id where userId = @userId;";
+        string query = "select UserItems.UserId, Items.name as item, UserItems.itemQuantity, Categories.name as category from UserItems inner join Items on UserItems.ItemId = items.id inner join categories on items.categoryId = categories.id where userId = @userId;";
         var items = await _dbConnection.QueryAsync(query, new {UserId = userId});
 
         return Ok(items);
@@ -192,13 +192,23 @@ namespace backend.Controllers
     [Route("AddUserItem")]
     public async Task<ActionResult> AddUserItem([FromBody]UserItemDto req) {
       try {
-        System.Console.WriteLine(req);
+        // check for category
+        string findCategoryQuery = "select * from categories where name = @Name;";
+        var category = await _dbConnection.QuerySingleOrDefaultAsync(findCategoryQuery, new {Name = req.itemCategory});
+        if(category == null) {
+          string insertCategoryQuery = "insert into categories (name) values (@Name);";
+          await _dbConnection.ExecuteAsync(insertCategoryQuery, new {Name = req.itemCategory});
+          category = await _dbConnection.QuerySingleOrDefaultAsync(findCategoryQuery, new {Name = req.itemCategory});
+        }
+
+        if(category == null) return BadRequest("Error adding or finding category..");
+
         // check if item exists and create it if not
-        string findItemQuery = "select * from items where name = @name";
-        var item = await _dbConnection.QuerySingleOrDefaultAsync(findItemQuery, new {name = req.itemName});
-        if(item == null) {
-          string insertItemQuery = "insert into items(name) values (@Name);";
-          await _dbConnection.ExecuteAsync(insertItemQuery, new {Name = req.itemName});
+        string findItemQuery = "select * from items where name = @Name";
+        var item = await _dbConnection.QuerySingleOrDefaultAsync(findItemQuery, new {Name = req.itemName});
+        if(item == null || category == null) {
+          string insertItemQuery = "insert into items(name, categoryId) values (@Name, @categoryId);";
+          await _dbConnection.ExecuteAsync(insertItemQuery, new {Name = req.itemName, categoryId = category!.id});
           item = await _dbConnection.QuerySingleOrDefaultAsync(findItemQuery, new {Name = req.itemName});
         }
 
@@ -216,7 +226,7 @@ namespace backend.Controllers
         string AddItemToUserQuery = "insert into UserItems (userId, itemId, itemQuantity) values (@userId, @itemId, @itemQuantity);";
         await _dbConnection.ExecuteAsync(AddItemToUserQuery, new {userId = user.id, itemId = item.id, req.itemQuantity});
 
-        return Ok(new {user, item});
+        return Ok(new {item, category});
       } catch(Exception ex) {
         return BadRequest(ex.Message);
       }
@@ -230,7 +240,6 @@ namespace backend.Controllers
         string query = "DELETE ui FROM UserItems AS ui JOIN Items AS i on ui.itemId = i.id WHERE ui.userId = @UserId AND i.name = @ItemName;";
         await _dbConnection.ExecuteAsync(query, new { userId, itemName});
 
-        System.Console.WriteLine("here");
         return Ok("Item removed from User");
       } catch(Exception ex) {
         return BadRequest(ex.Message);

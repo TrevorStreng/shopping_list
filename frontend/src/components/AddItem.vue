@@ -12,11 +12,11 @@ let itemCategory = ref("");
 const addItem = async () => {
   // ? idk if I should store this in local storage for now or straight to the database
   try {
+    console.log(itemCategory);
     const body = {
       itemName: itemName.value,
       itemQuantity: itemAmount.value,
-      // ! still need to get category id from category
-      // categoryId: 1,
+      itemCategory: itemCategory.value,
     };
     const newItem = await axios.post(
       "http://localhost:5066/users/AddUserItem",

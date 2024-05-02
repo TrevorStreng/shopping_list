@@ -74,7 +74,9 @@ const meunTranisition = () => {
     >
       <RouterLink to="/"> recipes </RouterLink>
     </li>
-    <li class="w-full text-center h-12 flex justify-center items-center">
+    <li
+      class="w-full text-center h-12 flex justify-center items-center border-b-2 border-green-100"
+    >
       <RouterLink to="#"> about </RouterLink>
     </li>
   </ul>
