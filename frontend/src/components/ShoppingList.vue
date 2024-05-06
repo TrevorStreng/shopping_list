@@ -16,14 +16,13 @@ onMounted(() => {
       return a.category.localeCompare(b.category);
     });
     items.value = sortedList;
-    console.log(items.value);
   };
 
   const getItems = async () => {
     try {
       axios.defaults.withCredentials = true;
       const list = await axios.get("http://localhost:5066/users/GetUserItems");
-      // items.value = list.data;
+
       sortItemsByCategory(list.data);
     } catch (err) {
       console.error(err);

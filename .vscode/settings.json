@@ -1,3 +1,5 @@
 {
-  "dotnet.defaultSolution": "backend.sln"
+  "dotnet.defaultSolution": "backend.sln",
+  "appService.preDeployTask": "publish-release",
+  "appService.deploySubpath": "backend/bin/Release/net8.0/publish"
 }

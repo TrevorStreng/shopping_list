@@ -65,8 +65,7 @@ namespace backend.Controllers
         return false;
     }
 
-    [HttpPost]
-    [Route("CreateUser")]
+    [HttpPost("CreateUser")]
     public async Task<ActionResult> CreateUser([FromBody]User user) {
       try {
         // check if email and password are in use
@@ -111,8 +110,7 @@ namespace backend.Controllers
       });
     }
 
-    [HttpPost]
-    [Route("Login")]
+    [HttpPost("Login")]
     public async Task<ActionResult> Login([FromBody]UserRequestDto req) {
       try {
         string query = "SELECT * FROM Users WHERE Username = @Username;";
@@ -172,8 +170,7 @@ namespace backend.Controllers
     return -1; 
     }
 
-    [HttpGet]
-    [Route("GetUserItems")]
+    [HttpGet("GetUserItems")]
     public async Task<ActionResult> GetUsersItems() {
       //! get user from token
       try {
@@ -188,8 +185,7 @@ namespace backend.Controllers
       }
     }
 
-    [HttpPost]
-    [Route("AddUserItem")]
+    [HttpPost("AddUserItem")]
     public async Task<ActionResult> AddUserItem([FromBody]UserItemDto req) {
       try {
         // check for category
@@ -246,8 +242,7 @@ namespace backend.Controllers
       }
     }
 
-    [HttpPost]
-    [Route("UpdateUserItemQuantity")]
+    [HttpPost("UpdateUserItemQuantity")]
     public async Task<IActionResult> UpdateUserItemQuantity([FromBody] UserItemDto req) {
       try {
         int userId = GetUserIdFromtoken();
