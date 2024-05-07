@@ -21,9 +21,9 @@ namespace backend.Controllers
 
     [HttpGet]
     public async Task<ActionResult> GetAllItems() {
-      var items = await _dbConnection.QueryAsync<Item>("SELECT * FROM Items");
+      // var items = await _dbConnection.QueryAsync<Item>("SELECT * FROM Items");
 
-      return Ok(items + "here");
+      return Ok("here");
     }
 
     [HttpGet("{id}", Name = "GetItem")]
