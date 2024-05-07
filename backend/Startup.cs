@@ -1,5 +1,5 @@
 ﻿using Dapper;
-using MySql.Data.MySqlClient;
+using Microsoft.Data.SqlClient;
 using System.Data;
 using backend.Services;
 using backend.Models;
@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Extensions.Configuration;
 
 
 
@@ -15,9 +16,11 @@ namespace shoppingList.Api
 {
     public class Startup
     {
+        private readonly IConfiguration _configuration;
+
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            _configuration = configuration;
         }
 
         public IConfiguration Configuration { get; }
@@ -25,9 +28,9 @@ namespace shoppingList.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            string connectionString = Configuration.GetConnectionString("ShoppingCart")!;
+            string connectionString = Configuration.GetConnectionString("cart2go")!;
 
-            services.AddScoped<IDbConnection>(provider => new MySqlConnection(connectionString));
+            services.AddScoped<IDbConnection>(provider => new SqlConnection(connectionString));
 
             // ? Add CORS policy
             services.AddCors(options =>
