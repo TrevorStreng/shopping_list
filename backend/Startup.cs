@@ -38,7 +38,7 @@ namespace shoppingList.Api
                 options.AddPolicy("AllowOrigin",
                     builder =>
                     {
-                        builder.WithOrigins("http://localhost:5173")
+                        builder.WithOrigins("https://cart2go.azurewebsites.net/")
                                .AllowAnyHeader()
                                .AllowAnyMethod()
                                .AllowCredentials();
