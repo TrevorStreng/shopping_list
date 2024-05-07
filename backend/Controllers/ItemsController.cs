@@ -23,7 +23,7 @@ namespace backend.Controllers
     public async Task<ActionResult> GetAllItems() {
       var items = await _dbConnection.QueryAsync<Item>("SELECT * FROM Items");
 
-      return Ok(items);
+      return Ok(items + "here");
     }
 
     [HttpGet("{id}", Name = "GetItem")]
