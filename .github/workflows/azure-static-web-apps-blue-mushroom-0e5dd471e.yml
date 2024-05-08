@@ -19,11 +19,6 @@ jobs:
         with:
           submodules: true
           lfs: false
-
-      - name: Install Dependencies and Build Vue.Js app
-        run: |
-          npm install
-          npm run build
       
       - name: Build And Deploy
         id: builddeploy
@@ -37,6 +32,7 @@ jobs:
           app_location: "./frontend" # App source code path
           api_location: "" # Api source code path - optional
           output_location: "dist" # Built app content directory - optional
+          app_build_command: "npm run build"
           ###### End of Repository/Build Configurations ######
 
   close_pull_request_job:
