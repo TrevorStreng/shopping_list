@@ -116,8 +116,6 @@ namespace backend.Controllers
         string query = "SELECT * FROM Users WHERE Username = @Username;";
         var user = await _dbConnection.QuerySingleOrDefaultAsync(query, new {Username = req.username});
         if(user == null) return BadRequest("Invalid username.🤬");
-
-        System.Console.WriteLine(user);
         
         bool passwordCheck = _passwordHashingService.VerifyPassword(user.Password, req.password);
 
