@@ -7,11 +7,18 @@ let items = ref([]);
 let isModalVisible = ref(false);
 let itemEditing = ref(false);
 let itemChecked = ref([]);
+const url = __apiUrl__;
 
 onMounted(() => {
   itemChecked.value = new Array(items.value.length).fill(false);
 
   const sortItemsByCategory = (list) => {
+    // todo: handle error
+    // console.log(list);
+    // if (list.length === 0) {
+    //   items.value = list;
+    //   return;
+    // }
     const sortedList = list.sort((a, b) => {
       return a.category.localeCompare(b.category);
     });
@@ -20,8 +27,9 @@ onMounted(() => {
 
   const getItems = async () => {
     try {
+      console.log(url);
       axios.defaults.withCredentials = true;
-      const list = await axios.get("http://localhost:5066/users/GetUserItems");
+      const list = await axios.get(`${url}users/GetUserItems`);
 
       sortItemsByCategory(list.data);
     } catch (err) {
@@ -57,9 +65,7 @@ const addItemToList = (newItemData) => {
 
 const deleteItem = async (itemName, index) => {
   try {
-    await axios.delete(
-      `http://localhost:5066/users/RemoveUserItem?itemName=${itemName}`
-    );
+    await axios.delete(`${url}RemoveUserItem?itemName=${itemName}`);
     items.value.splice(index, 1);
   } catch (err) {
     console.error(err);
@@ -72,10 +78,7 @@ const updateQuantity = async (item) => {
       item: item.name,
       itemQuantity: item.itemQuantity,
     };
-    await axios.post(
-      "http://localhost:5066/users/UpdateUserItemQuantity",
-      body
-    );
+    await axios.post(`${url}users/UpdateUserItemQuantity`, body);
   } catch (err) {
     console.error(err);
   }

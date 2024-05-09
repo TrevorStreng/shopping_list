@@ -8,6 +8,7 @@ const emits = defineEmits(["addItem", "closeModal"]);
 let itemName = ref("");
 let itemAmount = ref(1);
 let itemCategory = ref("");
+const url = __apiUrl__;
 
 const addItem = async () => {
   // ? idk if I should store this in local storage for now or straight to the database
@@ -18,10 +19,7 @@ const addItem = async () => {
       itemQuantity: itemAmount.value,
       itemCategory: itemCategory.value,
     };
-    const newItem = await axios.post(
-      "http://localhost:5066/users/AddUserItem",
-      body
-    );
+    const newItem = await axios.post(`${url}AddUserItem`, body);
 
     emits("addItem", body);
     emits("closeModal");

@@ -6,7 +6,7 @@ const username = ref("");
 const password = ref("");
 
 const router = new useRouter();
-
+const url = __apiUrl__;
 const login = async () => {
   try {
     const body = {
@@ -16,7 +16,7 @@ const login = async () => {
     };
 
     axios.defaults.withCredentials = true;
-    const res = await axios.post("http://localhost:5066/users/Login", body);
+    const res = await axios.post(`${url}users/Login`, body);
     router.push("/");
   } catch (err) {
     console.error(err);

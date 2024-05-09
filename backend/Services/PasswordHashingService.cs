@@ -18,6 +18,7 @@ namespace backend.Services
     }
 
     public bool VerifyPassword(string hashedPassword, string providedPassword) {
+      System.Console.WriteLine(hashedPassword);
       #nullable disable
       var result = _passwordHasher.VerifyHashedPassword(null, hashedPassword, providedPassword);
       #nullable restore

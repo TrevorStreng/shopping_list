@@ -28,6 +28,7 @@ namespace shoppingList.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // string connectionString = _configuration.GetConnectionString("local")!; // for local development
             string connectionString = _configuration.GetConnectionString("cart2go")!;
 
             services.AddScoped<IDbConnection>(provider => new SqlConnection(connectionString));
@@ -38,7 +39,8 @@ namespace shoppingList.Api
                 options.AddPolicy("AllowOrigin",
                     builder =>
                     {
-                        builder.WithOrigins("https://cart2go.azurewebsites.net/")
+                        builder.WithOrigins("https://cart2go.azurewebsites.net")
+                        // builder.WithOrigins("http://localhost:5173")
                                .AllowAnyHeader()
                                .AllowAnyMethod()
                                .AllowCredentials();
