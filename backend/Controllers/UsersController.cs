@@ -121,10 +121,10 @@ namespace backend.Controllers
 
         bool passwordCheck = _passwordHashingService.VerifyPassword(user.Password, req.password);
 
-        return Ok(user);
         if(!passwordCheck) return BadRequest("Invalid Password..");
 
         var token = _tokenService.GenerateJWT(user.Id);
+        return Ok(user);
 
         if(token == null) return BadRequest("Problem generating token");
 
