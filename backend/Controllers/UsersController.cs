@@ -118,10 +118,10 @@ namespace backend.Controllers
         var user = await _dbConnection.QuerySingleOrDefaultAsync(query, new {Username = req.username});
         if(user == null) return BadRequest("Invalid username.🤬");
         
-        return Ok(user);
 
         bool passwordCheck = _passwordHashingService.VerifyPassword(user.Password, req.password);
 
+        return Ok(user + passwordCheck);
         if(!passwordCheck) return BadRequest("Invalid Password..");
 
         var token = _tokenService.GenerateJWT(user.Id);
