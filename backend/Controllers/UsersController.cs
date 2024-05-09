@@ -121,7 +121,7 @@ namespace backend.Controllers
 
         bool passwordCheck = _passwordHashingService.VerifyPassword(user.Password, req.password);
 
-        return Ok(user + passwordCheck);
+        return Ok(user);
         if(!passwordCheck) return BadRequest("Invalid Password..");
 
         var token = _tokenService.GenerateJWT(user.Id);
