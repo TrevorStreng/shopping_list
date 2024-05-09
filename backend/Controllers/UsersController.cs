@@ -79,6 +79,8 @@ namespace backend.Controllers
         var newUser = new User {UserName = user.UserName, PasswordHash = hashedPassword, Email = user.Email};
         await _dbConnection.ExecuteAsync(query, newUser);
 
+        // TODO: Need to drop jwt
+
         return Ok(newUser);
       } catch(Exception ex) {
         return BadRequest(ex.Message);
@@ -124,7 +126,6 @@ namespace backend.Controllers
         if(!passwordCheck) return BadRequest("Invalid Password..");
 
         var token = _tokenService.GenerateJWT(user.Id);
-        return Ok(user);
 
         if(token == null) return BadRequest("Problem generating token");
 

@@ -12,7 +12,8 @@ namespace backend.Services{
     }
 
     public string GenerateJWT(int userId) {
-      var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
+      var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt"]!));
+      // var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!)); // development
       var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
       var claims = new[] {
         new Claim(JwtRegisteredClaimNames.Sid, userId.ToString())
