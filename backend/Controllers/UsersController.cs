@@ -106,7 +106,8 @@ namespace backend.Controllers
       {
         HttpOnly = true,
         Expires = DateTime.Now.AddDays(30),
-        // Secure = true
+        SameSite = SameSiteMode.None,
+        Secure = true
       });
     }
 
