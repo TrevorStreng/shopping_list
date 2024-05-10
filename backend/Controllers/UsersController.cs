@@ -107,7 +107,7 @@ namespace backend.Controllers
       Response.Cookies.Append("jwt", "Bearer " + token, new CookieOptions 
       {
         HttpOnly = true,
-        Expires = DateTime.Now.AddDays(30),
+        Expires = DateTime.UtcNow.AddDays(30),
         SameSite = SameSiteMode.None,
         Secure = true
       });

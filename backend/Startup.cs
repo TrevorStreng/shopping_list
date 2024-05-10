@@ -77,8 +77,7 @@ namespace shoppingList.Api
                 options.Cookie.Name = "jwt"; // Optional: Specify the name of the cookie
                 options.Cookie.HttpOnly = true; // Set HttpOnly to true for security
                 options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Recommended: Set to Always if served over HTTPS
-                options.Cookie.SameSite = SameSiteMode.None; // Optional: Specify the SameSite attribute
-                // options.LoginPath = "/users/Login"; // Optional: Specify the login path
+                // options.Cookie.SameSite = SameSiteMode.None; // Optional: Specify the SameSite attribute
             });
 
             // services.AddControllersWithViews();
