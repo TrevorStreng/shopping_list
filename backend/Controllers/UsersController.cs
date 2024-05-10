@@ -5,6 +5,7 @@ using System.Text;
 using backend.Models;
 using backend.Services;
 using Dapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
@@ -131,7 +132,7 @@ namespace backend.Controllers
 
         setJwtHeader(token);
 
-        return Ok(req.username + " logged in" + new {token});
+        return Ok(token);
       } catch(Exception ex) {
         return BadRequest(ex.Message);
       }
@@ -141,9 +142,9 @@ namespace backend.Controllers
     //   set token to expired
     // }
 
-    private int GetUserIdFromtoken() {
+    private int GetUserIdFromtoken(string jwtToken) {
     // Retrieve the Authorization header from the request
-    Request.Cookies.TryGetValue("jwt", out var jwtToken);
+    // Request.Cookies.TryGetValue("jwt", out var jwtToken);
 
     // Check if the Authorization header exists and starts with "Bearer "
     if (jwtToken != null && jwtToken.StartsWith("Bearer "))
@@ -176,11 +177,19 @@ namespace backend.Controllers
     return -1; 
     }
 
+    // [Authorize]
     [HttpGet("GetUserItems")]
     public async Task<ActionResult> GetUsersItems() {
       //! get user from token
       try {
-        int userId = GetUserIdFromtoken();
+        int userId = 0;
+        Request.Cookies.TryGetValue("jwt", out var jwtToken);
+
+        jwtToken ??= Request.Headers.Authorization;
+        System.Console.WriteLine(jwtToken);
+        if(jwtToken != null) {
+          userId = GetUserIdFromtoken(jwtToken);
+        }
 
         string query = "select UserItems.UserId, Items.name as item, UserItems.itemQuantity, Categories.name as category from UserItems inner join Items on UserItems.ItemId = items.id inner join categories on items.categoryId = categories.id where userId = @userId;";
         var items = await _dbConnection.QueryAsync(query, new {UserId = userId});
@@ -217,7 +226,15 @@ namespace backend.Controllers
         if(item == null) return BadRequest("Error adding or finding item..");
 
         // find user
-        int userId = GetUserIdFromtoken();
+        int userId = 0;
+        Request.Cookies.TryGetValue("jwt", out var jwtToken);
+
+        jwtToken ??= Request.Headers.Authorization;
+        System.Console.WriteLine(jwtToken);
+        if(jwtToken != null) {
+          userId = GetUserIdFromtoken(jwtToken);
+        }
+        // userId = GetUserIdFromtoken(jwtToken);
 
         string findUserQuery = "select * from users where id = @Id";
         var user = await _dbConnection.QuerySingleOrDefaultAsync(findUserQuery, new {Id = userId});
@@ -237,7 +254,15 @@ namespace backend.Controllers
     [HttpDelete("RemoveUserItem")]
     public async Task<IActionResult> RemoveUserItem([FromQuery]string itemName) {
       try {
-        int userId = GetUserIdFromtoken();
+        // int userId = GetUserIdFromtoken();
+        int userId = 0;
+        Request.Cookies.TryGetValue("jwt", out var jwtToken);
+
+        jwtToken ??= Request.Headers.Authorization;
+        System.Console.WriteLine(jwtToken);
+        if(jwtToken != null) {
+          userId = GetUserIdFromtoken(jwtToken);
+        }
 
         string query = "DELETE ui FROM UserItems AS ui JOIN Items AS i on ui.itemId = i.id WHERE ui.userId = @UserId AND i.name = @ItemName;";
         await _dbConnection.ExecuteAsync(query, new { userId, itemName});
@@ -251,7 +276,15 @@ namespace backend.Controllers
     [HttpPost("UpdateUserItemQuantity")]
     public async Task<IActionResult> UpdateUserItemQuantity([FromBody] UserItemDto req) {
       try {
-        int userId = GetUserIdFromtoken();
+        // int userId = GetUserIdFromtoken();
+        int userId = 0;
+        Request.Cookies.TryGetValue("jwt", out var jwtToken);
+
+        jwtToken ??= Request.Headers.Authorization;
+        System.Console.WriteLine(jwtToken);
+        if(jwtToken != null) {
+          userId = GetUserIdFromtoken(jwtToken);
+        }
 
         string query = "UPDATE UserItems AS ui JOIN Items AS i ON ui.ItemId = i.id JOIN Users AS u ON ui.UserId = u.id SET ui.itemQuantity = @Quantity WHERE u.id = @UserId AND i.name = @ItemName;";
         await _dbConnection.ExecuteAsync(query, new {Quantity = req.itemQuantity, userId, ItemName = req.itemName });

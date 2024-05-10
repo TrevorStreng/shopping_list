@@ -17,6 +17,9 @@ const login = async () => {
 
     axios.defaults.withCredentials = true;
     const res = await axios.post(`${url}users/Login`, body);
+
+    localStorage.setItem("jwtToken", res.data);
+
     router.push("/");
   } catch (err) {
     console.error(err);

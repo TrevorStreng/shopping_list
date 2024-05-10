@@ -12,6 +12,14 @@ const url = __apiUrl__;
 onMounted(() => {
   itemChecked.value = new Array(items.value.length).fill(false);
 
+  axios.interceptors.request.use((config) => {
+    const token = localStorage.getItem("jwtToken");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  });
+
   const sortItemsByCategory = (list) => {
     // todo: handle error
     // console.log(list);
