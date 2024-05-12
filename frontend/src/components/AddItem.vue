@@ -13,13 +13,13 @@ const url = __apiUrl__;
 const addItem = async () => {
   // ? idk if I should store this in local storage for now or straight to the database
   try {
-    console.log(itemCategory);
     const body = {
       itemName: itemName.value,
       itemQuantity: itemAmount.value,
       itemCategory: itemCategory.value,
     };
-    const newItem = await axios.post(`${url}AddUserItem`, body);
+    console.log(body);
+    const newItem = await axios.post(`${url}users/AddUserItem`, body);
 
     emits("addItem", body);
     emits("closeModal");

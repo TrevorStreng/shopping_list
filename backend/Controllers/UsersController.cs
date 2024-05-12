@@ -67,17 +67,19 @@ namespace backend.Controllers
     }
 
     [HttpPost("CreateUser")]
-    public async Task<ActionResult> CreateUser([FromBody]User user) {
+    public async Task<ActionResult> CreateUser([FromBody]NewUserDto req) {
+      System.Console.WriteLine(req);
       try {
         // check if email and password are in use
-        if(await CheckUsername(user.UserName!)) return BadRequest(user.UserName + "Username is already in use!");
-        if(await CheckEmail(user.Email!)) return BadRequest(user.Email + "Email is already in use!");
+        if(await CheckUsername(req.Username)) return BadRequest(req.Username + "Username is already in use!");
+        if(await CheckEmail(req.Email)) return BadRequest(req.Email + "Email is already in use!");
 
         // hash password
-        string hashedPassword = _passwordHashingService.HashPassword(user.Password!);
+        string hashedPassword = _passwordHashingService.HashPassword(req.Password);
+        System.Console.WriteLine(hashedPassword);
 
         string query = "INSERT INTO Users (username, password, email) values (@UserName, @PasswordHash, @Email);";
-        var newUser = new User {UserName = user.UserName, PasswordHash = hashedPassword, Email = user.Email};
+        var newUser = new User {UserName = req.Username, PasswordHash = hashedPassword, Email = req.Email};
         await _dbConnection.ExecuteAsync(query, newUser);
 
         // TODO: Need to drop jwt
@@ -180,13 +182,14 @@ namespace backend.Controllers
     // [Authorize]
     [HttpGet("GetUserItems")]
     public async Task<ActionResult> GetUsersItems() {
+
+      //TODO: this is constantly getting called even after updating quantity
       //! get user from token
       try {
         int userId = 0;
         Request.Cookies.TryGetValue("jwt", out var jwtToken);
 
         jwtToken ??= Request.Headers.Authorization;
-        System.Console.WriteLine(jwtToken);
         if(jwtToken != null) {
           userId = GetUserIdFromtoken(jwtToken);
         }
@@ -219,7 +222,7 @@ namespace backend.Controllers
         var item = await _dbConnection.QuerySingleOrDefaultAsync(findItemQuery, new {Name = req.itemName});
         if(item == null || category == null) {
           string insertItemQuery = "insert into items(name, categoryId) values (@Name, @categoryId);";
-          await _dbConnection.ExecuteAsync(insertItemQuery, new {Name = req.itemName, categoryId = category!.id});
+          await _dbConnection.ExecuteAsync(insertItemQuery, new {Name = req.itemName, categoryId = category!.Id});
           item = await _dbConnection.QuerySingleOrDefaultAsync(findItemQuery, new {Name = req.itemName});
         }
 
@@ -230,7 +233,6 @@ namespace backend.Controllers
         Request.Cookies.TryGetValue("jwt", out var jwtToken);
 
         jwtToken ??= Request.Headers.Authorization;
-        System.Console.WriteLine(jwtToken);
         if(jwtToken != null) {
           userId = GetUserIdFromtoken(jwtToken);
         }
@@ -243,7 +245,7 @@ namespace backend.Controllers
 
         // add item userItems
         string AddItemToUserQuery = "insert into UserItems (userId, itemId, itemQuantity) values (@userId, @itemId, @itemQuantity);";
-        await _dbConnection.ExecuteAsync(AddItemToUserQuery, new {userId = user.id, itemId = item.id, req.itemQuantity});
+        await _dbConnection.ExecuteAsync(AddItemToUserQuery, new {userId = user.Id, itemId = item.Id, req.itemQuantity});
 
         return Ok(new {item, category});
       } catch(Exception ex) {
@@ -259,7 +261,7 @@ namespace backend.Controllers
         Request.Cookies.TryGetValue("jwt", out var jwtToken);
 
         jwtToken ??= Request.Headers.Authorization;
-        System.Console.WriteLine(jwtToken);
+
         if(jwtToken != null) {
           userId = GetUserIdFromtoken(jwtToken);
         }
@@ -277,16 +279,23 @@ namespace backend.Controllers
     public async Task<IActionResult> UpdateUserItemQuantity([FromBody] UserItemDto req) {
       try {
         // int userId = GetUserIdFromtoken();
-        int userId = 0;
+
+        int userId = -1;
         Request.Cookies.TryGetValue("jwt", out var jwtToken);
 
         jwtToken ??= Request.Headers.Authorization;
-        System.Console.WriteLine(jwtToken);
+
         if(jwtToken != null) {
           userId = GetUserIdFromtoken(jwtToken);
         }
 
-        string query = "UPDATE UserItems AS ui JOIN Items AS i ON ui.ItemId = i.id JOIN Users AS u ON ui.UserId = u.id SET ui.itemQuantity = @Quantity WHERE u.id = @UserId AND i.name = @ItemName;";
+        if(userId == -1) {
+          return BadRequest("No user found..");
+        }
+        System.Console.WriteLine(req);
+
+
+        string query = "UPDATE ui SET ui.itemQuantity = @Quantity FROM UserItems ui INNER JOIN Items i on ui.ItemId = i.id INNER JOIN Users u ON ui.userId = u.id WHERE u.id = @userId AND i.name = @ItemName;";
         await _dbConnection.ExecuteAsync(query, new {Quantity = req.itemQuantity, userId, ItemName = req.itemName });
 
         return NoContent();

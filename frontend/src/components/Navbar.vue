@@ -1,5 +1,5 @@
 <script setup>
-import { reactive } from "vue";
+import { reactive, onMounted, onUnmounted } from "vue";
 
 let state = reactive({
   down: true,
@@ -11,23 +11,6 @@ const meunTranisition = () => {
 
   const items = document.getElementById("mobile_menu");
   items.classList.toggle("trans");
-
-  // if (state.down) {
-  //   for (let i = 0; i < 3; i++) {
-  //     const item = document.querySelector(`.item-${i + 1}`);
-  //     setTimeout(() => {
-  //       item.classList.toggle("trans");
-  //     }, 150 * i);
-  //   }
-  // } else {
-  //   for (let i = 3; i > 0; i--) {
-  //     const item = document.querySelector(`.item-${i}`);
-  //     setTimeout(() => {
-  //       item.classList.toggle("trans");
-  //     }, 150 * (3 - i));
-  //   }
-  // }
-  // state.toggleMenu = !state.toggleMenu;
 };
 </script>
 
@@ -40,17 +23,12 @@ const meunTranisition = () => {
         <img class="max-h-12" src="/images/shoppingCart.png" />
       </RouterLink>
     </div>
-    <!-- <div class="">
-      <p>Login</p>
-      <p>Recipes</p>
-    </div> -->
     <div class="font-bold">Cart2Go</div>
     <div
       id="dropdown_menu"
       class="h-6 w-8 flex flex-col justify-between z-0"
       @click="
         () => {
-          // state.toggleMenu = !state.toggleMenu;
           meunTranisition();
         }
       "
@@ -67,17 +45,22 @@ const meunTranisition = () => {
     <li
       class="w-full text-center h-12 flex justify-center items-center border-b-2 border-green-100"
     >
-      <RouterLink to="/login"> login </RouterLink>
+      <RouterLink to="/" @click="meunTranisition()"> Home </RouterLink>
     </li>
     <li
       class="w-full text-center h-12 flex justify-center items-center border-b-2 border-green-100"
     >
-      <RouterLink to="/"> recipes </RouterLink>
+      <RouterLink to="/login" @click="meunTranisition()"> Login </RouterLink>
     </li>
     <li
       class="w-full text-center h-12 flex justify-center items-center border-b-2 border-green-100"
     >
-      <RouterLink to="#"> about </RouterLink>
+      <RouterLink to="/" @click="meunTranisition()"> Recipes </RouterLink>
+    </li>
+    <li
+      class="w-full text-center h-12 flex justify-center items-center border-b-2 border-green-100"
+    >
+      <RouterLink to="#" @click="meunTranisition()"> About </RouterLink>
     </li>
   </ul>
 </template>

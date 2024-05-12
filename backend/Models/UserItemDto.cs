@@ -3,5 +3,5 @@
 public record class UserItemDto(
   string itemName,
   int itemQuantity,
-  string itemCategory
+  string? itemCategory
 );

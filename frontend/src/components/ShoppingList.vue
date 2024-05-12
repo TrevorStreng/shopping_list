@@ -35,7 +35,7 @@ onMounted(() => {
 
   const getItems = async () => {
     try {
-      console.log(url);
+      console.log("again");
       axios.defaults.withCredentials = true;
       const list = await axios.get(`${url}users/GetUserItems`);
 
@@ -73,7 +73,7 @@ const addItemToList = (newItemData) => {
 
 const deleteItem = async (itemName, index) => {
   try {
-    await axios.delete(`${url}RemoveUserItem?itemName=${itemName}`);
+    await axios.delete(`${url}users/RemoveUserItem?itemName=${itemName}`);
     items.value.splice(index, 1);
   } catch (err) {
     console.error(err);
@@ -83,10 +83,13 @@ const deleteItem = async (itemName, index) => {
 const updateQuantity = async (item) => {
   try {
     const body = {
-      item: item.name,
+      itemName: item.item,
       itemQuantity: item.itemQuantity,
+      // itemCategory: "",
     };
+    console.log(body);
     await axios.post(`${url}users/UpdateUserItemQuantity`, body);
+    console.log(body);
   } catch (err) {
     console.error(err);
   }
