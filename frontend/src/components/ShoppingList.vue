@@ -62,6 +62,7 @@ onMounted(() => {
 
 // Add item section
 const addItemToList = (newItemData) => {
+  // TODO: sort items after adding
   const newItem = {
     item: newItemData.itemName,
     itemQuantity: newItemData.itemQuantity,
@@ -137,7 +138,7 @@ const updateQuantity = async (item) => {
 
     <!-- big edit button -->
     <div
-      class="flex items-center justify-center absolute left-4 bottom-4 w-8 h-8"
+      class="flex items-center justify-center absolute left-4 bottom-4 w-14 h-14"
       @click="itemEditing = !itemEditing"
     >
       <svg
