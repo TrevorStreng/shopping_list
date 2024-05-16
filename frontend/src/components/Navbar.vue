@@ -55,7 +55,9 @@ const meunTranisition = () => {
     <li
       class="w-full text-center h-12 flex justify-center items-center border-b-2 border-green-100"
     >
-      <RouterLink to="/" @click="meunTranisition()"> Recipes </RouterLink>
+      <RouterLink to="/recipes" @click="meunTranisition()">
+        Recipes
+      </RouterLink>
     </li>
     <li
       class="w-full text-center h-12 flex justify-center items-center border-b-2 border-green-100"

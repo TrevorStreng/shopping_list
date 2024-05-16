@@ -28,21 +28,19 @@ const login = async () => {
 </script>
 
 <template>
-  <div class="flex justify-center h-[20rem]">
-    <div class="flex flex-col items-center justify-evenly">
-      <h1 class="text-center text-xl font-xl">Welcome Back</h1>
-      <div>
-        <p>Username:</p>
-        <input v-model="username" class="border border-black rounded" />
-      </div>
-      <div>
-        <p>Password:</p>
-        <input v-model="password" class="border border-black rounded" />
-      </div>
-      <button @click="login" class="border rounded w-1/2 mb-2">submit</button>
-      <button class="border rounded w-/12">
-        <RouterLink to="/createAccount">Create Account</RouterLink>
-      </button>
+  <div class="flex flex-col items-center justify-evenly h-[20rem]">
+    <h1 class="text-center text-xl font-xl">Welcome Back</h1>
+    <div>
+      <p>Username:</p>
+      <input v-model="username" class="border border-black rounded" />
     </div>
+    <div>
+      <p>Password:</p>
+      <input v-model="password" class="border border-black rounded" />
+    </div>
+    <button @click="login" class="border rounded-lg px-2 mb-2">Login</button>
+    <button class="border rounded-lg px-2">
+      <RouterLink to="/createAccount">Create Account</RouterLink>
+    </button>
   </div>
 </template>
