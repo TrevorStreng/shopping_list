@@ -1,50 +1,16 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from "vue";
+import axios from "axios";
 
-let recipes = ref([
-  {
-    name: "meat sauce",
-    ingredients: [
-      { name: "onion", qty: 1, qtyType: "" },
-      { name: "curshed tomateos", qty: 1, qtyType: "can" },
-      { name: "ground beef", qty: 1, qtyType: "lb" },
-      { name: "carrot", qty: 1, qtyType: "" },
-      { name: "celery", qty: 1, qtyType: "" },
-      { name: "basil", qty: 1, qtyType: "cup" },
-      { name: "italian parsely", qty: 1, qtyType: "cup" },
-      { name: "seasonings", qty: 1, qtyType: "" },
-    ],
-    steps: [
-      "saute onion and garlic in large pot with olive oil for 10 minutes",
-      "add carrot and celery",
-      "add ground beef cook until not pink",
-      "add can of crushed tomatoes, basil, and italian parsley",
-      "add any seasonings",
-      "simmer for 30 minutes",
-    ],
-  },
-  {
-    name: "meat sauce 2",
-    ingredients: [
-      { name: "onion", qty: 1, qtyType: "" },
-      { name: "curshed tomateos", qty: 1, qtyType: "can" },
-      { name: "ground beef", qty: 1, qtyType: "lb" },
-      { name: "carrot", qty: 1, qtyType: "" },
-      { name: "celery", qty: 1, qtyType: "" },
-      { name: "basil", qty: 1, qtyType: "cup" },
-      { name: "italian parsely", qty: 1, qtyType: "cup" },
-      { name: "seasonings", qty: 1, qtyType: "" },
-    ],
-    steps: [
-      "saute onion and garlic in large pot with olive oil for 10 minutes",
-      "add carrot and celery",
-      "add ground beef cook until not pink",
-      "add can of crushed tomatoes, basil, and italian parsley",
-      "add any seasonings",
-      "simmer for 30 minutes",
-    ],
-  },
-]);
+let recipes = ref([]);
+
+const getAllRecipes = async () => {
+  try {
+    const data = await axios.get("/recipes");
+  } catch (err) {
+    console.error(err);
+  }
+};
 </script>
 
 <template>
@@ -56,15 +22,22 @@ let recipes = ref([
     <div class="border rounded-xl md:w-1/3 p-2">
       <h1 class="text-center font-bold">{{ recipe.name }}</h1>
       <div>
-        <h2 class="font-semibold">ingredients</h2>
+        <div class="grid grid-cols-3">
+          <h2 class="font-semibold col-span-2">ingredients</h2>
+          <p>quantity</p>
+        </div>
         <div
           v-for="(ingredients, index) in recipe.ingredients"
           :key="index"
-          class="flex"
+          class="grid grid-cols-3"
         >
-          <p>{{ ingredients.name }}</p>
-          <p>{{ ingredients.qty }}</p>
-          <p v-if="ingredients.qtyType.length > 0">{{ ingredients.qtyType }}</p>
+          <p class="col-span-2">{{ ingredients.name }}</p>
+          <div class="grid grid-cols-2">
+            <p>{{ ingredients.qty }}</p>
+            <p v-if="ingredients.qtyType.length > 0">
+              {{ ingredients.qtyType }}
+            </p>
+          </div>
         </div>
         <h2 class="font-semibold">Steps</h2>
         <ol class="list-decimal px-3">
