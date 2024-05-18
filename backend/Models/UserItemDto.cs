@@ -1,4 +1,4 @@
-﻿namespace backend;
+﻿namespace backend.Models;
 
 public record class UserItemDto(
   string itemName,

@@ -1,6 +1,6 @@
 ﻿using System.Security.Cryptography.X509Certificates;
 
-namespace backend;
+namespace backend.Models;
 
 public record class ItemRequestDto(
   int id,

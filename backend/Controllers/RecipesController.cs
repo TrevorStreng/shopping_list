@@ -1,10 +1,11 @@
 ﻿using System.Data;
+using backend.Models;
 using Dapper;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers
 {
-  [ApiController]
+    [ApiController]
   [Route("[controller]")]
 
   public class RecipesController : ControllerBase
@@ -24,11 +25,17 @@ namespace backend.Controllers
 
         string querySteps = "SELECT r.Id, r.name as RecipeName, s.Description as steps from Recipes r Inner JOIN Steps s on r.Id = s.RecipeId";
         var recipeSteps = await _dbConnection.QueryAsync(querySteps);
-        
+
+        buildRecipes(recipeIngredients, recipeSteps);
+
         return Ok(new {recipeIngredients, recipeSteps});
       } catch(Exception ex) {
         return BadRequest(ex.Message);
       }
+    }
+
+    public RecipeDto buildRecipes(IngredientsDto ingredient, StepsDto steps) {
+
     }
   }
 

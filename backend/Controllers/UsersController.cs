@@ -11,7 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace backend.Controllers
 {
-  [ApiController]
+    [ApiController]
   [Route("[controller]")]
   public class UsersController : ControllerBase
   {
